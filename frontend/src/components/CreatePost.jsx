@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import api from '../lib/axios'
 import { useDispatch, useSelector } from 'react-redux'
 import { setPosts, setcities } from '../redux/postSlice'
-import MapPicker from './Mappicker'
+import MapPicker from './MapPicker'
 
 const CreatePost = ({ open, setOpen, type = "post", parentClose }) => {
   const imageRef = useRef()
