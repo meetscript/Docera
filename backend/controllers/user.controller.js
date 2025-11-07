@@ -1,7 +1,7 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../utils/cloudinary.js";
-import generateToken  from "../utils/generatetoken.js";
+import generateToken  from "../utils/generateToken.js";
 import streamifier from "streamifier";
 
 export const register = async (req, res) => {
