@@ -6,15 +6,16 @@ import { AtSign, Heart, MessageCircle, User, Camera } from 'lucide-react';
 import { cn } from '../lib/utils';
 import api from '../lib/axios';
 import toast from 'react-hot-toast';
-import { setUserProfile } from '../redux/authSlice';
+import { setSelectedUser, setUserProfile } from '../redux/authSlice';
 import FollowDialog from './followdialog.jsx';
 import CommentDialog from './CommentDialog.jsx';
 import { setSelectedPost } from '../redux/postSlice';
+import { useNavigate } from 'react-router-dom';
 const Profile = () => {
   const params = useParams();
   const userId = params.id;
   const dispatch = useDispatch();
-
+const navigate = useNavigate();
   useGetUserProfile(userId);
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('posts');
@@ -23,7 +24,7 @@ const Profile = () => {
 
   const [isFollowing, setIsFollowing] = useState(false);
 
-  const [[type,openFollower], setOpenFollower] = useState(['followers',false]);
+  const [[type, openFollower], setOpenFollower] = useState(['followers', false]);
 
   useEffect(() => {
     if (userProfile && user) {
@@ -118,12 +119,28 @@ const Profile = () => {
                   ) : isFollowing ? (
                     <>
                       <button className="btn btn-outline btn-sm" onClick={followingHandler}>Unfollow</button>
-                      <button className="btn btn-outline btn-sm">Message</button>
+                         <button
+                        className="btn btn-outline btn-sm"
+                        onClick={() => {
+                          dispatch(setSelectedUser(userProfile));
+                          navigate('/chat');
+                        }}
+                      >
+                        Message
+                      </button>
                     </>
                   ) : (
                     <>
                       <button className="btn btn-primary btn-sm" onClick={followingHandler}>Follow</button>
-                      <button className="btn btn-outline btn-sm">Message</button>
+                      <button
+                        className="btn btn-outline btn-sm"
+                        onClick={() => {
+                          dispatch(setSelectedUser(userProfile));
+                          navigate('/chat');
+                        }}
+                      >
+                        Message
+                      </button>
                     </>
                   )}
                 </div>
@@ -131,13 +148,13 @@ const Profile = () => {
 
               <div className="flex items-center gap-6 text-sm">
                 <p><span className="font-semibold">{userProfile?.posts?.length || 0}</span> posts</p>
-                <p><span className="font-semibold">{userProfile?.followers?.length || 0}</span><button onClick={() => setOpenFollower(['followers',true])}>followers</button> </p>
-                <p><span className="font-semibold">{userProfile?.following?.length || 0}</span> <button onClick={() => setOpenFollower(['following',true])}>following</button></p>
+                <p><span className="font-semibold">{userProfile?.followers?.length || 0}</span><button onClick={() => setOpenFollower(['followers', true])}>followers</button> </p>
+                <p><span className="font-semibold">{userProfile?.following?.length || 0}</span> <button onClick={() => setOpenFollower(['following', true])}>following</button></p>
               </div>
               <FollowDialog
                 open={openFollower}
-                onClose={() => setOpenFollower(['followers',false])}
-                followers={type==='followers'?userProfile?.followers || []: userProfile?.following || []}
+                onClose={() => setOpenFollower(['followers', false])}
+                followers={type === 'followers' ? userProfile?.followers || [] : userProfile?.following || []}
                 type={type}
               />
               <div className="flex flex-col gap-2">
@@ -150,7 +167,7 @@ const Profile = () => {
             </div>
           </section>
         </div>
-           
+
         {/* Posts Section */}
         <div className="border-t border-gray-200">
           {/* Tabs */}
@@ -174,10 +191,10 @@ const Profile = () => {
           {/* Posts Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
             {displayedPost?.map((post) => (
-              <div  onClick={() => {
-                            dispatch(setSelectedPost(post));
-                            setOpen(true);
-                          }}
+              <div onClick={() => {
+                dispatch(setSelectedPost(post));
+                setOpen(true);
+              }}
                 key={post?._id}
                 className="relative group cursor-pointer rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
               >
@@ -201,7 +218,7 @@ const Profile = () => {
               </div>
             ))}
           </div>
-     <CommentDialog open={open} setOpen={setOpen} />
+          <CommentDialog open={open} setOpen={setOpen} />
           {/* Empty State */}
           {(!displayedPost || displayedPost.length === 0) && (
             <div className="text-center py-16 text-gray-500">
