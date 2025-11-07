@@ -62,7 +62,8 @@ function App() {
   const dispatch = useDispatch();
   useEffect(() => {
     if (user) {
-      const socketio = io('http://localhost:5001', {
+      const url =import.meta.env.MODE==="development"?"http://localhost:5001":"https://mygujrat.onrender.com"; 
+      const socketio = io(url, {
         query: {
           userId: user?._id
         },
