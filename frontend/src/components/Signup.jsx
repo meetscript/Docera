@@ -4,32 +4,52 @@ import { Link, useNavigate } from "react-router-dom";
 import { Loader2, UserPlus } from "lucide-react";
 import { useSelector } from "react-redux";
 import api from "../lib/axios";
-
 const Signup = () => {
   const [input, setInput] = useState({
     username: "",
     email: "",
     password: "",
   });
+  const [check, setCheck] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useSelector((store) => store.auth);
   const navigate = useNavigate();
 
-  const changeEventHandler = (e) => {
+  const changeEventHandler = async (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
+    if (e.target.name === "username") {
+      try {
+        const res = await api.get(`/user/checkuser/`, 
+          {
+            params:{username:e.target.value}
+          }
+        );
+        console.log("you can use this username");
+        setCheck(false);
+      } catch (error) {
+        if (error.response?.data?.success=== false) {
+          toast.error("Username already taken");
+        }
+        setCheck(true);
+        console.log("Error in checking username availability:", err);
+      }
+    }
   };
+
 
   const signupHandler = async (e) => {
     e.preventDefault();
+    let res;
     try {
       setLoading(true);
-      const res = await api.post("user/register", input, {
+      res = await api.post("user/register", input, {
         headers: {
           "Content-Type": "application/json",
         },
         withCredentials: true,
       });
       if (res.data.success) {
+        console.log(res);
         navigate("/login");
         toast.success(res.data.message);
         setInput({ username: "", email: "", password: "" });
@@ -54,7 +74,7 @@ const Signup = () => {
           <div className="text-center mb-4">
             <div className="flex justify-center items-center gap-2 mb-2">
               <UserPlus className="w-7 h-7 text-primary" />
-              <h1 className="text-2xl font-bold text-base-content">LOGO</h1>
+              <h1 className="text-2xl font-bold text-base-content">MyGujrat</h1>
             </div>
             <p className="text-sm text-base-content/70">
               Sign up to see photos and videos from your friends
@@ -74,7 +94,7 @@ const Signup = () => {
                 value={input.username}
                 onChange={changeEventHandler}
                 placeholder="Enter your username"
-                className="input input-bordered w-full"
+                className={check ? "input input-bordered w-full underline underline-offset-2 text-red-500" :"input input-bordered w-full"}
                 required
               />
             </label>

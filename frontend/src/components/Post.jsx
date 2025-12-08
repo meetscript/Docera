@@ -7,19 +7,26 @@ import { useDispatch, useSelector } from 'react-redux'
 import toast from "react-hot-toast";
 import { setPosts, setSelectedPost } from '../redux/postSlice'
 import api from '../lib/axios'
+import ShareDialog from './ShareDialog'
 import { cn } from '../lib/utils'
+import { useNavigate } from 'react-router-dom';
 
 const Post = ({ post }) => {
+  // console.log("post in post component:", post);
+  const navigate = useNavigate();
   const [text, setText] = useState("");
-  const [open, setOpen] = useState(false);
+  // const [open, setOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
-  const { user } = useSelector(store => store.auth);
+  const { user ,msgusers} = useSelector(store => store.auth);
+  console.log("current user in post component:", user);
   const { posts } = useSelector(store => store.post);
   const [liked, setLiked] = useState(post.likes.includes(user?._id) || false);
+  const [saved, setSaved] = useState(user.Bookmarks?.includes(post._id) || false);
   const [postLike, setPostLike] = useState(post.likes.length);
   const [comment, setComment] = useState(post.comments);
   const dispatch = useDispatch();
-
+  //  console.log("saved?", saved);
   const changeEventHandler = (e) => {
     const inputText = e.target.value;
     setText(inputText.trim() ? inputText : "");
@@ -95,6 +102,7 @@ const Post = ({ post }) => {
       if (res.data.success) {
         toast.success(res.data.message);
       }
+      setSaved(!saved);
     } catch (error) {
       console.log(error);
     }
@@ -177,7 +185,7 @@ const Post = ({ post }) => {
 
       {/* Location Badge (if available) */}
       {post.location && post.location.name && (
-        <div 
+        <div
           onClick={handleLocationClick}
           className="flex items-center gap-1 mt-2 text-xs text-base-content/70 cursor-pointer hover:text-primary transition-colors"
         >
@@ -213,17 +221,28 @@ const Post = ({ post }) => {
           <MessageCircle
             onClick={() => {
               dispatch(setSelectedPost(post));
-              setOpen(true);
+              console.log("clicked comment icon");
+              navigate(`/post/${post._id}`);
             }}
             className="cursor-pointer hover:text-primary"
           />
-          <Send className="cursor-pointer hover:text-primary" />
+          <button onClick={() => setShareOpen(true)}>
+            <Send className="cursor-pointer hover:text-primary" />
+          </button>
         </div>
 
-        <Bookmark
-          onClick={bookmarkHandler}
-          className="cursor-pointer hover:text-primary"
-        />
+        {/* <BookmarkCheck size={16} color="#ffffff" strokeWidth={1.5} absoluteStrokeWidth /> */}
+        {saved ? (
+          <Bookmark
+            fill="#FFFFFF"
+            onClick={bookmarkHandler}
+            className="cursor-pointer text-primary "
+          />
+        ) : (
+          <Bookmark
+            onClick={bookmarkHandler}
+            className="cursor-pointer hover:text-primary "
+          />)}
       </div>
 
       {/* Likes */}
@@ -247,11 +266,17 @@ const Post = ({ post }) => {
           View all {comment.length} comments
         </span>
       )}
-
-      <CommentDialog open={open} setOpen={setOpen} />
-      <LocationMapDialog 
-        open={mapOpen} 
-        setOpen={setMapOpen} 
+      
+      <ShareDialog
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        msgusers={msgusers}
+        postId={post._id}
+      />
+  
+      <LocationMapDialog
+        open={mapOpen}
+        setOpen={setMapOpen}
         location={post.location}
       />
 

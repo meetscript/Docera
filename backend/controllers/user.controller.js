@@ -4,19 +4,37 @@ import cloudinary from "../utils/cloudinary.js";
 import generateToken  from "../utils/generateToken.js";
 import streamifier from "streamifier";
 
+export const checkuser=async (req,res)=>{
+  try{
+    const username=req.query.username; 
+    console.log("Checking username:", username);
+    const user=await User.findOne({username});
+    if(user){
+      console.log("Username already taken");
+      return res.status(409).json({ success: false, message: "Username already taken" });
+    } else {
+      console.log("Username is available");
+      return res.status(200).json({ success: true, message: "Username is available" });
+    }
+  }
+  catch(error){
+    console.error("Error during username check:", error);
+    res.status(500).json({
+      success: false,
+      message: `Server error, please try again later. ${error.message}`,
+    });
+  } 
+}
+
 export const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
-
-    // 1️⃣ Validate input
     if (!username || !email || !password) {
       return res.status(400).json({
         success: false,
         message: "All fields are required!",
       });
     }
-
-    // 2️⃣ Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({
@@ -24,24 +42,24 @@ export const register = async (req, res) => {
         message: "Email already registered. Try a different one!",
       });
     }
-
-    // 3️⃣ Hash password
+    const existingUsername=await User.findOne({username});
+    if(existingUsername){
+      return res.status(409).json({
+        success: false,
+        message: "Username already taken. Please choose another one!",
+      });
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 4️⃣ Create new user
     const newUser = new User({
       username,
       email,
       password: hashedPassword,
     });
-
-    // 5️⃣ Save user to DB
     await newUser.save();
 
-    // 6️⃣ Generate JWT token
-    generateToken(newUser._id, res); // assuming this sets cookie or header
+    generateToken(newUser._id, res); 
 
-    // 7️⃣ Send success response
     res.status(201).json({
       success: true,
       message: "User registered successfully!",
@@ -55,7 +73,7 @@ export const register = async (req, res) => {
     console.error("Error during registration:", error);
     res.status(500).json({
       success: false,
-      message: "Server error, please try again later.",
+      message: `Server error, please try again later. ${error.message}`,
     });
   }
 };

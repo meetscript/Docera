@@ -44,7 +44,7 @@ const SuggestedUsers = () => {
       </div>
 
       <span className="text-primary text-xs font-bold cursor-pointer hover:text-primary-focus">
-        Follow
+        say hiii
       </span>
     </div>
   ))}

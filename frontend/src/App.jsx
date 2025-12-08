@@ -5,6 +5,7 @@ import Home from './components/Home'
 import Login from './components/Login'
 import MainLayout from './components/MainLayout'
 import Profile from './components/Profile'
+import { Toaster } from 'react-hot-toast'
 import Signup from './components/Signup'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { io } from "socket.io-client";
@@ -15,6 +16,7 @@ import { setOnlineUsers } from './redux/chatSlice'
 import { setLikeNotification } from './redux/rtnSlice'
 import ProtectedRoutes from './components/ProtectedRoutes'
 import SearchUsers from './components/SearchUsers'
+import CommentDialog from './components/CommentDialog'
 const browserRouter = createBrowserRouter([
   {
     path: "/",
@@ -29,6 +31,10 @@ const browserRouter = createBrowserRouter([
         element: <ProtectedRoutes> <Profile /></ProtectedRoutes>
       },
       {
+        path:'/post/:id',
+        element:<ProtectedRoutes><CommentDialog/></ProtectedRoutes>
+      },
+      {
         path: '/account/edit',
         element: <ProtectedRoutes><EditProfile /></ProtectedRoutes>
       },
@@ -38,11 +44,11 @@ const browserRouter = createBrowserRouter([
       },
       {
         path: '/citiespost',
-        element: <ProtectedRoutes><CitiesPost/></ProtectedRoutes>
+        element: <ProtectedRoutes><CitiesPost /></ProtectedRoutes>
       },
       {
         path: '/search',
-        element: <ProtectedRoutes><SearchUsers/></ProtectedRoutes>
+        element: <ProtectedRoutes><SearchUsers /></ProtectedRoutes>
       }
     ]
   },
@@ -62,7 +68,7 @@ function App() {
   const dispatch = useDispatch();
   useEffect(() => {
     if (user) {
-      const url =import.meta.env.MODE==="development"?"http://localhost:5001":"https://mygujrat.onrender.com"; 
+      const url = import.meta.env.MODE === "development" ? "http://localhost:5001" : "https://mygujrat.onrender.com";
       const socketio = io(url, {
         query: {
           userId: user?._id
@@ -92,6 +98,10 @@ function App() {
 
   return (
     <>
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+      />
       <RouterProvider router={browserRouter} />
     </>
   )

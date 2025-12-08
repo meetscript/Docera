@@ -51,7 +51,6 @@ const LeftSidebar = () => {
   const sidebarItems = [
     { icon: <Home />, text: "Home" },
     { icon: <Search />, text: "Search" },
-    { icon: <TrendingUp />, text: "Explore" },
     { icon: <MessageCircle />, text: "Messages" },
     { icon: <Building2 />, text: "citypost" },
     { icon: <Heart />, text: "Notifications" },
@@ -76,7 +75,7 @@ const LeftSidebar = () => {
               className={`text-2xl font-bold text-primary transition-opacity duration-500
               ${expanded ? 'opacity-100' : 'opacity-0 hidden'}`}
             >
-              MySocial
+              MyGujrat
             </h1>
             <button
               onClick={() => setExpanded(!expanded)}

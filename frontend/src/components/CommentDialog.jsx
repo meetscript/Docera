@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { MoreHorizontal } from 'lucide-react'
+import { Link, Navigate } from 'react-router-dom'
+import {X} from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import Comment from './Comment'
 import api from '../lib/axios'
 import { toast } from 'react-hot-toast'
 import { setPosts } from '../redux/postSlice'
-
-const CommentDialog = ({ open, setOpen }) => {
+import { useNavigate } from 'react-router-dom'
+const CommentDialog = () => {
+  const navigate =useNavigate();
   const [text, setText] = useState("");
   const { selectedPost, posts } = useSelector(store => store.post);
   const [comment, setComment] = useState([]);
@@ -48,12 +49,10 @@ const CommentDialog = ({ open, setOpen }) => {
     }
   };
 
-  if (!open) return null;
   return (
    <div className="fixed inset-0 z-50 flex items-center justify-center bg-base-content/60">
   <div className="relative bg-base-100 rounded-lg shadow-xl w-[90vw] max-w-5xl h-[80vh] flex overflow-hidden">
 
-    {/* LEFT SIDE: Post Image */}
     <div className="w-1/2 h-full">
       <img
         src={selectedPost?.image}
@@ -77,17 +76,13 @@ const CommentDialog = ({ open, setOpen }) => {
             </div>
           </Link>
           <div>
-            <Link className="font-semibold text-sm hover:underline text-base-content">
+            <Link className="font-semibold text-sm hover:underline text-base-content" to={`/profile/${selectedPost?.author?._id}`}>
               {selectedPost?.author?.username || "Unknown User"}
             </Link>
           </div>
         </div>
 
-        {/* More Options */}
-        <MoreHorizontal
-          className="cursor-pointer text-base-content/70 hover:text-base-content"
-          onClick={() => setShowOptions(true)}
-        />
+       
       </div>
 
       {/* Comments List */}
@@ -124,10 +119,10 @@ const CommentDialog = ({ open, setOpen }) => {
 
     {/* Close Button */}
     <button
-      onClick={() => setOpen(false)}
-      className="absolute top-3 right-4 text-base-100 hover:text-base-200 text-2xl"
+      onClick={() => {navigate(-1)}}
+      className="absolute top-3 right-4 cursor-pointer hover:text-base-400 text-2xl"
     >
-      ✕
+      <X />
     </button>
   </div>
 

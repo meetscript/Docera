@@ -54,7 +54,7 @@ const Login = () => {
         <div className="card-body space-y-4">
           {/* Logo & Intro */}
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-primary">LOGO</h1>
+            <h1 className="text-3xl font-bold text-primary">MyGujrat</h1>
             <p className="text-base-content/70 mt-1 text-sm">
               Login to see photos & videos from your friends
             </p>
