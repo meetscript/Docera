@@ -11,7 +11,8 @@ const messageSchema = new mongoose.Schema({
     },
     message: {
         type: String,
-        required: true
-    }
-});
+        default: ""
+    },
+    image: { type: String, default: "" },
+},{timpestamps: true});
 export const Message = mongoose.model('Message', messageSchema);

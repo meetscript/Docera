@@ -193,7 +193,7 @@ const navigate = useNavigate();
             {displayedPost?.map((post) => (
               <div onClick={() => {
                 dispatch(setSelectedPost(post));
-                setOpen(true);
+                navigate(`/post/${post._id}`);
               }}
                 key={post?._id}
                 className="relative group cursor-pointer rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
@@ -218,7 +218,6 @@ const navigate = useNavigate();
               </div>
             ))}
           </div>
-          <CommentDialog open={open} setOpen={setOpen} />
           {/* Empty State */}
           {(!displayedPost || displayedPost.length === 0) && (
             <div className="text-center py-16 text-gray-500">
