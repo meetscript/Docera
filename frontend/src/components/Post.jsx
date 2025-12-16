@@ -219,8 +219,6 @@ const Post = ({ post }) => {
 
           <MessageCircle
             onClick={() => {
-              dispatch(setSelectedPost(post));
-              console.log("clicked comment icon");
               navigate(`/post/${post._id}`);
             }}
             className="cursor-pointer hover:text-primary"

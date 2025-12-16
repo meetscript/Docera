@@ -1,15 +1,16 @@
 import React, { useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useSelector ,useDispatch} from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import useGetAllMessage from "../hooks/useGetAllMessage";
 import useGetRTM from "../hooks/useGetRTM";
 import { User, ExternalLink } from "lucide-react";
 import { cn } from "../lib/utils";
 import { setSelectedPost } from "../redux/postSlice";
-
+import { useNavigate } from "react-router-dom";
 const Messages = ({ selectedUser }) => {
   useGetRTM();
   useGetAllMessage();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { messages } = useSelector((store) => store.chat);
   const { user } = useSelector((store) => store.auth);
@@ -121,13 +122,10 @@ const Messages = ({ selectedUser }) => {
                           src={msg.sharedPost.image}
                           alt="shared post"
                           className="w-full h-[300px] cursor-pointer"
-                          onClick={() =>
-                            {dispatch(setSelectedPost(msg.sharedPost._id));
-                            window.open(
-                              `https://mygujrat.onrender.com/post/${msg.sharedPost._id}`,
-                              "_blank"
-                            )
-                          }}
+                          onClick={() => {
+                            navigate(`/post/${msg.sharedPost._id}`);
+                          }
+                          }
                         />
                       </div>
 

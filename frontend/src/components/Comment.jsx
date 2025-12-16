@@ -10,8 +10,8 @@ const Comment = ({ comment }) => {
                     <div className="w-8 h-8 rounded-full">
                         {comment?.author?.profilePicture ? (
                             <img 
-                                src={comment.author.profilePicture} 
-                                alt={comment?.author.username}
+                                src={comment.author?.profilePicture} 
+                                alt={comment?.author?.username}
                                 className="object-cover"
                             />
                         ) : (

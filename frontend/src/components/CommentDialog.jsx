@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useParams } from 'react-router-dom'
 import {X} from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import Comment from './Comment'
@@ -9,17 +9,19 @@ import { setPosts } from '../redux/postSlice'
 import { useNavigate } from 'react-router-dom'
 const CommentDialog = () => {
   const navigate =useNavigate();
+  const {id}=useParams();
   const [text, setText] = useState("");
-  const { selectedPost, posts } = useSelector(store => store.post);
   const [comment, setComment] = useState([]);
-  const [showOptions, setShowOptions] = useState(false);
+  const {posts}= useSelector((store)=>store.post);
+  const post = posts.find((p) => p._id === id);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (selectedPost) {
-      setComment(selectedPost.comments);
+    if (post) {
+      setComment(post.comments);
     }
-  }, [selectedPost]);
+  }, [post]);
 
   const changeEventHandler = (e) => {
     const inputText = e.target.value;
@@ -55,7 +57,7 @@ const CommentDialog = () => {
 
     <div className="w-1/2 h-full">
       <img
-        src={selectedPost?.image}
+        src={post?.image}
         alt="post"
         className="w-full h-full object-cover rounded-l-lg"
       />
@@ -69,15 +71,15 @@ const CommentDialog = () => {
           <Link>
             <div className="w-10 h-10 rounded-full overflow-hidden border border-base-300">
               <img
-                src={selectedPost?.author?.profilePicture}
+                src={post?.author?.profilePicture}
                 alt="user"
                 className="w-full h-full object-cover"
               />
             </div>
           </Link>
           <div>
-            <Link className="font-semibold text-sm hover:underline text-base-content" to={`/profile/${selectedPost?.author?._id}`}>
-              {selectedPost?.author?.username || "Unknown User"}
+            <Link className="font-semibold text-sm hover:underline text-base-content" to={`/profile/${post?.author?._id}`}>
+              {post?.author?.username || "Unknown User"}
             </Link>
           </div>
         </div>
@@ -125,42 +127,6 @@ const CommentDialog = () => {
       <X />
     </button>
   </div>
-
-  {/* DaisyUI Modal for Unfollow / Follow */}
-  {showOptions && (
-    <dialog open className="modal">
-      <div className="modal-box text-center bg-base-100">
-        <button
-          className="w-full py-2 text-error font-bold hover:bg-error/10 rounded"
-          onClick={() => {
-            setShowOptions(false);
-            toast.success("Unfollowed user");
-          }}
-        >
-          Unfollow
-        </button>
-        <button
-          className="w-full py-2 hover:bg-base-200 rounded"
-          onClick={() => {
-            setShowOptions(false);
-            toast.success("Added to favorites");
-          }}
-        >
-          Add to favorites
-        </button>
-        <div className="modal-action">
-          <form method="dialog">
-            <button
-              onClick={() => setShowOptions(false)}
-              className="btn btn-sm"
-            >
-              Close
-            </button>
-          </form>
-        </div>
-      </div>
-    </dialog>
-  )}
 </div>
 
   );
