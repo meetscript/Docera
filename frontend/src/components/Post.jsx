@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Bookmark, MessageCircle, MoreHorizontal, Send, MapPin ,ChevronLeft,ChevronRight} from 'lucide-react'
+import { Bookmark, MessageCircle, MoreHorizontal, Send, MapPin, ChevronLeft, ChevronRight } from 'lucide-react'
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import CommentDialog from './CommentDialog'
 import LocationMapDialog from './LocationMapDialog'
@@ -16,16 +16,16 @@ const Post = ({ post }) => {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const images = post.images?.length
-  ? post.images
-  : post.image
-  ? [post.image]
-  : [];
-  console.log("images in post component ===:", post.images);
+    ? post.images
+    : post.image
+      ? [post.image]
+      : [];
   const [text, setText] = useState("");
+  const [expanded, setExpanded] = useState(false);
+
   const [shareOpen, setShareOpen] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
   const { user, msgusers } = useSelector(store => store.auth);
-  console.log("current user in post component:", user);
   const { posts } = useSelector(store => store.post);
   const [liked, setLiked] = useState(post.likes.includes(user?._id) || false);
   const [saved, setSaved] = useState(user.Bookmarks?.includes(post._id) || false);
@@ -137,7 +137,18 @@ const Post = ({ post }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="my-8 w-full max-w-sm mx-auto border border-base-300 rounded-xl shadow-sm p-3 bg-base-100">
+    <div
+      className="
+    w-full 
+    rounded-2xl 
+    bg-base-100 
+    shadow-sm 
+    hover:shadow-xl 
+    hover:-translate-y-1 
+    transition-all duration-300 ease-out
+    p-3
+  "
+    >
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -156,10 +167,12 @@ const Post = ({ post }) => {
             )}
           </div>
 
-          <div className="flex items-center gap-3">
-            <h1 className="font-semibold text-base-content">{post.author?.username}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="font-semibold text-sm text-base-content">
+              {post.author?.username}
+            </h1>
             {user?._id === post.author._id && (
-              <span className="text-xs px-2 py-0.5 rounded-md bg-base-200 border border-base-300 text-base-content/70">
+              <span className="text-xs px-2 py-0.5 rounded-md bg-base-200 text-base-content/70">
                 Author
               </span>
             )}
@@ -174,24 +187,30 @@ const Post = ({ post }) => {
           />
           {menuOpen && (
             <div
-              className={cn(
-                "absolute right-0 mt-2 bg-base-100 border border-base-300 shadow-lg rounded-md w-40 text-sm flex flex-col z-10"
-              )}
+              className="
+            absolute right-0 mt-2 
+            bg-base-100 
+            border border-base-300 
+            shadow-lg 
+            rounded-xl 
+            w-40 
+            text-sm 
+            flex flex-col 
+            z-10
+          "
             >
               {post?.author?._id !== user?._id && (
-                <button
-                  className="px-4 py-2 text-error hover:bg-base-200 text-left"
-                >
+                <button className="px-4 py-2 text-error hover:bg-base-200 text-left">
                   Unfollow
                 </button>
               )}
-              <button className="px-4 py-2 hover:bg-base-200 text-left text-base-content">
+              <button className="px-4 py-2 hover:bg-base-200 text-left">
                 Add to favorites
               </button>
               {user && user?._id === post?.author._id && (
                 <button
                   onClick={deletePostHandler}
-                  className="px-4 py-2 hover:bg-base-200 text-left text-base-content"
+                  className="px-4 py-2 hover:bg-base-200 text-left"
                 >
                   Delete
                 </button>
@@ -201,66 +220,76 @@ const Post = ({ post }) => {
         </div>
       </div>
 
-      {/* Location Badge (if available) */}
-      {post.location && post.location.name && (
+      {/* Location */}
+      {post.location?.name && (
         <div
           onClick={handleLocationClick}
-          className="flex items-center gap-1 mt-2 text-xs text-base-content/70 cursor-pointer hover:text-primary transition-colors"
+          className="
+        flex items-center gap-1 
+        mt-1 
+        text-xs 
+        text-base-content/60 
+        cursor-pointer 
+        hover:text-primary
+      "
         >
           <MapPin className="w-3 h-3" />
-          <span className="truncate max-w-[280px]">{post.location.name}</span>
+          <span className="truncate">{post.location.name}</span>
         </div>
       )}
 
       {/* Image */}
-      <div className="relative my-2 w-full aspect-square overflow-hidden rounded-sm">
+      {images.length > 0 && (
+        <div className="relative my-2 overflow-hidden rounded-xl">
+          <img
+            src={images[currentImageIndex]}
+            alt="post"
+            className="
+          w-full 
+          object-cover 
+          rounded-xl
+          min-h-[260px]
+          max-h-[520px]
+        "
+          />
 
-        {/* Image */}
-        {/* Image Slider */}
-        {images.length > 0 && (
-          <div className="relative my-2">
-            <img
-              src={images[currentImageIndex]}
-              alt={`post_img_${currentImageIndex}`}
-              className="rounded-sm w-full aspect-square object-cover"
-            />
+          {/* Left */}
+          <button
+            onClick={prevImage}
+            disabled={currentImageIndex === 0}
+            className="
+          absolute left-2 top-1/2 -translate-y-1/2 
+          bg-black/60 text-white 
+          p-1 rounded-full
+          disabled:opacity-40
+        "
+          >
+            <ChevronLeft />
+          </button>
 
-            {/* Left Button */}
-            <button
-              onClick={prevImage}
-              disabled={currentImageIndex === 0}
-              className={cn(
-                "absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 text-white p-1 rounded-full",
-                currentImageIndex === 0 && "opacity-40 cursor-not-allowed"
-              )}
-            >
-              <ChevronLeft />
-            </button>
+          {/* Right */}
+          <button
+            onClick={nextImage}
+            disabled={currentImageIndex === images.length - 1}
+            className="
+          absolute right-2 top-1/2 -translate-y-1/2 
+          bg-black/60 text-white 
+          p-1 rounded-full
+          disabled:opacity-40
+        "
+          >
+            <ChevronRight />
+          </button>
+        </div>
+      )}
 
-            {/* Right Button */}
-            <button
-              onClick={nextImage}
-              disabled={currentImageIndex === images.length - 1}
-              className={cn(
-                "absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 text-white p-1 rounded-full",
-                currentImageIndex === images.length - 1 && "opacity-40 cursor-not-allowed"
-              )}
-            >
-             <ChevronRight />
-            </button>
-          </div>
-        )}
-
-      </div>
-
-
-      {/* Action Buttons */}
-      <div className="flex items-center justify-between my-2">
-        <div className="flex items-center gap-3">
+      {/* Actions */}
+      <div className="flex items-center justify-between my-2 text-base-content/80">
+        <div className="flex items-center gap-4">
           {liked ? (
             <FaHeart
               onClick={likeOrDislikeHandler}
-              size={24}
+              size={22}
               className="cursor-pointer text-error"
             />
           ) : (
@@ -272,38 +301,52 @@ const Post = ({ post }) => {
           )}
 
           <MessageCircle
-            onClick={() => {
-              navigate(`/post/${post._id}`);
-            }}
+            onClick={() => navigate(`/post/${post._id}`)}
             className="cursor-pointer hover:text-primary"
           />
-          <button onClick={() => setShareOpen(true)}>
-            <Send className="cursor-pointer hover:text-primary" />
-          </button>
+
+          <Send
+            onClick={() => setShareOpen(true)}
+            className="cursor-pointer hover:text-primary"
+          />
         </div>
 
-        {/* <BookmarkCheck size={16} color="#ffffff" strokeWidth={1.5} absoluteStrokeWidth /> */}
-        {saved ? (
-          <Bookmark
-            fill="#FFFFFF"
-            onClick={bookmarkHandler}
-            className="cursor-pointer text-primary "
-          />
-        ) : (
-          <Bookmark
-            onClick={bookmarkHandler}
-            className="cursor-pointer hover:text-primary "
-          />)}
+        <Bookmark
+          onClick={bookmarkHandler}
+          className="cursor-pointer hover:text-primary"
+        />
       </div>
 
       {/* Likes */}
-      <span className="font-medium block mb-2 text-base-content">{postLike} likes</span>
+      <span className="block text-sm font-medium mb-1">
+        {postLike} likes
+      </span>
 
       {/* Caption */}
-      <p className="text-base-content">
-        <span className="font-medium mr-2">{post.author?.username}</span>
-        {post.caption}
-      </p>
+      <div className="text-sm leading-relaxed">
+        <span className="font-medium mr-1">
+          {post.author?.username}
+        </span>
+        <p className="text-sm leading-relaxed">
+          <span className="font-medium mr-1">
+            {post.author?.username}
+          </span>
+
+          <span className={expanded ? "" : "line-clamp-2"}>
+            {post.caption}
+          </span>
+
+          {post.caption?.length > 120 && (
+            <span
+              onClick={() => setExpanded(!expanded)}
+              className="text-base-content/60 cursor-pointer ml-1 select-none"
+            >
+              {expanded ? "Show less" : "Read more"}
+            </span>
+          )}
+        </p>
+
+      </div>
 
       {/* Comments */}
       {comment.length > 0 && (
@@ -312,7 +355,7 @@ const Post = ({ post }) => {
             dispatch(setSelectedPost(post));
             setOpen(true);
           }}
-          className="cursor-pointer text-sm text-base-content/60"
+          className="block mt-1 text-xs text-base-content/60 cursor-pointer"
         >
           View all {comment.length} comments
         </span>
@@ -332,25 +375,31 @@ const Post = ({ post }) => {
       />
 
       {/* Add Comment */}
-      <div className="flex items-center justify-between border-t border-base-300 mt-2 pt-2">
+      <div className="flex items-center gap-2 border-t border-base-300 mt-2 pt-2">
         <input
           type="text"
           placeholder="Add a comment..."
           value={text}
           onChange={changeEventHandler}
-          className="outline-none text-sm w-full bg-transparent text-base-content placeholder:text-base-content/50"
+          className="
+        w-full 
+        bg-transparent 
+        outline-none 
+        text-sm 
+        placeholder:text-base-content/50
+      "
         />
         {text && (
           <span
             onClick={commentHandler}
-            className="text-primary cursor-pointer font-medium ml-2"
+            className="text-primary cursor-pointer font-medium"
           >
             Post
           </span>
         )}
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Post;

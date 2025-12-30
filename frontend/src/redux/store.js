@@ -21,7 +21,7 @@ const persistConfig = {
   key: 'root',
   version: 1,
   storage,
-  blacklist: ['socketio'], // ✅ socket not persisted
+  blacklist: ['socketio','realTimeNotification'],
 };
 
 const rootReducer = combineReducers({

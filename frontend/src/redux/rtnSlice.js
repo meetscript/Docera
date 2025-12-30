@@ -1,19 +1,34 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const rtnSlice = createSlice({
-    name:'realTimeNotification',
-    initialState:{
-        likeNotification:[], // [1,2,3]
+    name: 'realTimeNotification',
+    initialState: {
+        notifications: [],
+        unreadCount: 0,
     },
-    reducers:{
-        setLikeNotification:(state,action)=>{
-            if(action.payload.type === 'like'){
-                state.likeNotification.push(action.payload);
-            }else if(action.payload.type === 'dislike'){
-                state.likeNotification = state.likeNotification.filter((item)=> item.userId !== action.payload.userId);
+    reducers: {
+        setNotifications: (state, action) => {
+            state.notifications = action.payload;
+            state.unreadCount = action.payload.filter(n => !n.isRead).length;
+        },
+        addNotification: (state, action) => {
+            if (!Array.isArray(state.notifications)) {
+                state.notifications = [];
             }
-        }
-    }
+            state.notifications.unshift(action.payload);
+
+            if (!action.payload.isRead) {
+                state.unreadCount += 1;
+            }
+        },
+        markAllRead: (state) => {
+            state.notifications.forEach(n => {
+                n.isRead = true;
+            });
+            state.unreadCount = 0;
+        },
+
+    },
 });
-export const {setLikeNotification} = rtnSlice.actions;
+export const { setNotifications, addNotification, markAllRead } = rtnSlice.actions;
 export default rtnSlice.reducer;

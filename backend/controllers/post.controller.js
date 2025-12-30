@@ -6,7 +6,7 @@ import { Comment } from "../models/comment.model.js";
 import { getReceiverSocketId, io } from "../socket/socket.js";
 import City from "../models/city.model.js";
 import streamifier from "streamifier";
-
+import { Notification } from "../models/notification.model.js";
 const uploadToCloudinary = (buffer) => {
     return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
@@ -165,7 +165,6 @@ export const addcityPost = async (req, res) => {
 }
 
 export const getAllPost = async (req, res) => {
-    console.log("get all post called");
     try {
         const posts = await Post.find().sort({ createdAt: -1 })
             .populate({ path: 'author', select: 'username profilePicture' })
@@ -188,7 +187,6 @@ export const getAllPost = async (req, res) => {
 };
 
 export const getAllcities = async (req, res) => {
-    console.log("get all cities called");
     try {
         const cities = await City.find().sort({ createdAt: -1 })
             .populate({ path: 'auther', select: 'username profilePicture' });
@@ -227,30 +225,27 @@ export const getUserPost = async (req, res) => {
 
 export const likePost = async (req, res) => {
     try {
-        const likeKrneWalaUserKiId = req.id;
+        const liker = req.id;
         const postId = req.params.id;
         const post = await Post.findById(postId);
         if (!post) return res.status(404).json({ message: 'Post not found', success: false });
-
-        // like logic started
-        await post.updateOne({ $addToSet: { likes: likeKrneWalaUserKiId } });
+        await post.updateOne({ $addToSet: { likes: liker } });
         await post.save();
-
-        // implement socket io for real time notification
-        const user = await User.findById(likeKrneWalaUserKiId).select('username profilePicture');
+        
+        const user = await User.findById(liker).select('username profilePicture');
 
         const postOwnerId = post.author.toString();
-        if (postOwnerId !== likeKrneWalaUserKiId) {
-            // emit a notification event
-            const notification = {
-                type: 'like',
-                userId: likeKrneWalaUserKiId,
-                userDetails: user,
-                postId,
-                message: 'Your post was liked'
-            }
+        if (postOwnerId !== liker) {
+
+            const notificationDoc = await Notification.create({
+            toUser: postOwnerId,
+            fromUser: liker,
+            type: 'LIKE',
+            postId,
+            message: `Your post was liked by ${user.username}`,
+        })
             const postOwnerSocketId = getReceiverSocketId(postOwnerId);
-            io.to(postOwnerSocketId).emit('notification', notification);
+            io.to(postOwnerSocketId).emit('notification', notificationDoc);
         }
 
         return res.status(200).json({ message: 'Post liked', success: true });
@@ -262,29 +257,26 @@ export const likePost = async (req, res) => {
 
 export const dislikePost = async (req, res) => {
     try {
-        const likeKrneWalaUserKiId = req.id;
+        const unliker = req.id;
         const postId = req.params.id;
         const post = await Post.findById(postId);
         if (!post) return res.status(404).json({ message: 'Post not found', success: false });
 
-        // like logic started
-        await post.updateOne({ $pull: { likes: likeKrneWalaUserKiId } });
+        await post.updateOne({ $pull: { likes: unliker } });
         await post.save();
 
-        // implement socket io for real time notification
-        const user = await User.findById(likeKrneWalaUserKiId).select('username profilePicture');
+        const user = await User.findById(unliker).select('username profilePicture');
         const postOwnerId = post.author.toString();
-        if (postOwnerId !== likeKrneWalaUserKiId) {
-            // emit a notification event
-            const notification = {
-                type: 'dislike',
-                userId: likeKrneWalaUserKiId,
-                userDetails: user,
-                postId,
-                message: 'Your post was liked'
-            }
+        if (postOwnerId !== unliker) {
+            const notificationDoc = await Notification.create({
+            toUser: postOwnerId,
+            fromUser: unliker,
+            type: 'LIKE',
+            postId,
+            message: `Your post was disliked by ${user.username}`,
+        })
             const postOwnerSocketId = getReceiverSocketId(postOwnerId);
-            io.to(postOwnerSocketId).emit('notification', notification);
+            io.to(postOwnerSocketId).emit('notification', notificationDoc);
         }
         return res.status(200).json({ message: 'Post disliked', success: true });
     } catch (error) {
@@ -326,6 +318,7 @@ export const addComment = async (req, res) => {
 
     } catch (error) {
         console.log(error);
+        res.status(500).json({ message: 'Internal Server Error', success: false });
     }
 };
 

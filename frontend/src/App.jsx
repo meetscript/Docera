@@ -13,11 +13,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setSocket } from './redux/socketSlice'
 import CitiesPost from './components/CitiesPost'
 import { setOnlineUsers } from './redux/chatSlice'
-import { setLikeNotification } from './redux/rtnSlice'
 import ProtectedRoutes from './components/ProtectedRoutes'
 import SearchUsers from './components/SearchUsers'
 import CommentDialog from './components/CommentDialog'
-
+import { toast } from 'react-hot-toast' 
+import { addNotification } from './redux/rtnSlice'
+import NotificationTab from './components/NotificationTab'
 const browserRouter = createBrowserRouter([
   {
     path: "/",
@@ -50,6 +51,10 @@ const browserRouter = createBrowserRouter([
       {
         path: '/search',
         element: <ProtectedRoutes><SearchUsers /></ProtectedRoutes>
+      },
+      {
+        path:'notifications',
+        element:<ProtectedRoutes><NotificationTab/></ProtectedRoutes>
       }
     ]
   },
@@ -64,6 +69,7 @@ const browserRouter = createBrowserRouter([
 ])
 
 function App() {
+  
   const { user } = useSelector(store => store.auth);
   const { socket } = useSelector(store => store.socketio);
   const dispatch = useDispatch();
@@ -83,7 +89,10 @@ function App() {
       });
 
       socketio.on('notification', (notification) => {
-        dispatch(setLikeNotification(notification));
+        dispatch(addNotification(notification));
+          toast(notification.message, {
+      icon: "🔔",
+    });
       });
 
       return () => {

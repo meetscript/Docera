@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import cloudinary from "../utils/cloudinary.js";
 import generateToken  from "../utils/generateToken.js";
 import streamifier from "streamifier";
-
+import { Notification } from "../models/notification.model.js";
 export const checkuser=async (req,res)=>{
   try{
     const username=req.query.username; 
@@ -422,3 +422,27 @@ export const followOrUnfollow = async (req, res) => {
     });
   }
 };
+
+export const readAllNotifications = async (req, res) => {
+    try {
+    await Notification.updateMany(
+      { toUser: req.id, isRead: false },
+      { $set: { isRead: true } }
+    );
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+export const getNotifications= async (req, res) => {
+  console.log("Get notifications called for user:", req.id);
+    try{
+      const notifications = await Notification.find({ toUser: req.id }).select("-__v").sort({ createdAt: -1 });
+      res.status(200).json({ success: true, notifications }); 
+    }
+    catch(error){ 
+      res.status(500).json({ success: false, message: error.message });
+      console.error("Error fetching notifications:", error);
+    }
+}

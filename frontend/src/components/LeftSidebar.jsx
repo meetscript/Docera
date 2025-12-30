@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { 
-  Heart, Home, LogOut, MessageCircle, PlusSquare, 
-  Search, TrendingUp, User, Menu ,Building2
+import {
+  Heart, Home, LogOut, MessageCircle, PlusSquare,
+  Search, TrendingUp, User, Menu, Building2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -17,6 +17,9 @@ const LeftSidebar = () => {
   const navigate = useNavigate();
   const { user } = useSelector(store => store.auth);
   const dispatch = useDispatch();
+  const unreadCount = useSelector(
+    state => state.realTimeNotification.unreadCount
+  );
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
@@ -45,7 +48,7 @@ const LeftSidebar = () => {
     else if (textType === "Home") navigate("/");
     else if (textType === "citypost") navigate("/citiespost");
     else if (textType === 'Messages') navigate("/chat");
-    else if( textType === 'Search') navigate("/search");
+    else if (textType === 'Search') navigate("/search");
   };
 
   const sidebarItems = [
@@ -53,7 +56,6 @@ const LeftSidebar = () => {
     { icon: <Search />, text: "Search" },
     { icon: <MessageCircle />, text: "Messages" },
     { icon: <Building2 />, text: "citypost" },
-    { icon: <Heart />, text: "Notifications" },
     { icon: <PlusSquare />, text: "Create" },
     { icon: <User />, text: "Profile" },
     { icon: <LogOut />, text: "Logout" },
@@ -85,8 +87,42 @@ const LeftSidebar = () => {
             </button>
           </div>
 
-          {/* SIDEBAR ITEMS */}
           <ul className="space-y-4">
+           <li
+  className="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-base-200 transition-all"
+  onClick={() => navigate('/notifications')}
+>
+  {/* Icon wrapper must be relative */}
+  <div className="relative">
+    <Heart size={24} className="text-base-content" />
+
+    {unreadCount > 0 && (
+      <span
+        className="
+          absolute -top-1 -right-1
+          min-w-[18px] h-[18px]
+          px-1
+          flex items-center justify-center
+          text-[10px] font-semibold
+          text-white
+          bg-red-500
+          rounded-full
+        "
+      >
+        {unreadCount > 4 ? "4+" : unreadCount}
+      </span>
+    )}
+  </div>
+
+  {/* Text */}
+  <span
+    className={`text-sm font-medium text-base-content transition-all duration-500
+      ${expanded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-5 hidden'}`}
+  >
+    Notifications
+  </span>
+</li>
+
             {sidebarItems.map((item, index) => (
               <li
                 key={index}
@@ -103,6 +139,7 @@ const LeftSidebar = () => {
               </li>
             ))}
           </ul>
+
         </div>
 
         {/* USER PROFILE SECTION */}

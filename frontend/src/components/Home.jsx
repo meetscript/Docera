@@ -5,8 +5,9 @@ import RightSidebar from './RightSidebar'
 import useGetAllPost from '../hooks/useGetAllPost'
 import useGetSuggestedUsers from '../hooks/useGetSuggestedUsers'
 import useGetAllcities from '../hooks/useGetAllcities'
-
+import useGetAllNotifications from '../hooks/useGetAllNotification'
 const Home = () => {
+    useGetAllNotifications();
     useGetAllPost();
     useGetAllcities();
     useGetSuggestedUsers();
